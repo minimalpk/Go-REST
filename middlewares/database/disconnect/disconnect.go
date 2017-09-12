@@ -7,5 +7,5 @@ import "database/sql"
 
 // Run - Execute package for disconnect in database
 func Run(database *sql.DB) {
-	database.Close()
+    database.Close()
 }

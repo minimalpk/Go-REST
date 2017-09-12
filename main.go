@@ -4,107 +4,107 @@ package main
 
 import (
 	"database/sql"
-	"net/http"
+    "net/http"
 )
 
 // Import middlewares packages
 
 import (
-	middlewareDatabaseConnect    "rest/middlewares/database/connect"
-	middlewareDatabaseDisconnect "rest/middlewares/database/disconnect"
-	middlewareRequest            "rest/middlewares/request"
-	middlewareResponse           "rest/middlewares/response"
-	middlewareAccess             "rest/middlewares/access"
-	middlewareRoutes             "rest/middlewares/routes"
+    middlewareDatabaseConnect    "rest/middlewares/database/connect"
+    middlewareDatabaseDisconnect "rest/middlewares/database/disconnect"
+    middlewareRequest            "rest/middlewares/request"
+    middlewareResponse           "rest/middlewares/response"
+    middlewareAccess             "rest/middlewares/access"
+    middlewareRoutes             "rest/middlewares/routes"
 )
 
 const (
-	HTTP_HOST = "localhost"
-	HTTP_PORT = "8080"
+    HTTP_HOST = "localhost"
+    HTTP_PORT = "8080"
 )
 
 // Execute action
 
 func execute(request *http.Request, parameters map[string]interface{}, database *sql.DB, action func(*http.Request, map[string]interface{}, *sql.DB) (int, interface{})) (int, interface{}) {
-	return action(request, parameters, database)
+    return action(request, parameters, database)
 }
 
 // Main
 
 func main() {
-	// Hanle actions
+    // Hanle actions
 
-	http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
-		// Base
+    http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
+        // Base
 
-		response.Header().Set("Content-Type", "application/json")
-		response.Header().Set("Access-Control-Allow-Origin", "*")
+        response.Header().Set("Content-Type", "application/json")
+        response.Header().Set("Access-Control-Allow-Origin", "*")
 
-		if request.Method == "OPTIONS" {
-			response.WriteHeader(http.StatusNoContent)
+        if request.Method == "OPTIONS" {
+            response.WriteHeader(http.StatusNoContent)
 
-			return
-		}
+            return
+        }
 
-		// Middleware database connect
+        // Middleware database connect
 
-		var database = middlewareDatabaseConnect.Run()
+        var database = middlewareDatabaseConnect.Run()
 
-		// Middleware request
+        // Middleware request
 
-		var parameters, error = middlewareRequest.Run(response, request)
+        var parameters, error = middlewareRequest.Run(response, request)
 
-		if error != nil {
-			// Middleware database dissconnect
+        if error != nil {
+            // Middleware database dissconnect
 
-			middlewareDatabaseDisconnect.Run(database)
+            middlewareDatabaseDisconnect.Run(database)
 
-			return
-		}
+            return
+        }
 
-		// Middleware access
+        // Middleware access
 
-		var status = middlewareAccess.Run(response, request, database)
+        var status = middlewareAccess.Run(response, request, database)
 
-		if status == false {
-			// Middleware database dissconnect
+        if status == false {
+            // Middleware database dissconnect
 
-			middlewareDatabaseDisconnect.Run(database)
+            middlewareDatabaseDisconnect.Run(database)
 
-			return
-		}
+            return
+        }
 
-		// Middleware routes
+        // Middleware routes
 
-		var action = middlewareRoutes.Run(response, request, parameters, database)
+        var action = middlewareRoutes.Run(response, request, parameters, database)
 
-		if action == nil {
-			// Middleware database dissconnect
+        if action == nil {
+            // Middleware database dissconnect
 
-			middlewareDatabaseDisconnect.Run(database)
+            middlewareDatabaseDisconnect.Run(database)
 
-			return
-		}
+            return
+        }
 
-		// Execute
+        // Execute
 
-		var (
-			code int
-			body interface{}
-		)
+        var (
+            code int
+            body interface{}
+        )
 
-		code, body = execute(request, parameters, database, action)
+        code, body = execute(request, parameters, database, action)
 
-		// Middleware response
+        // Middleware response
 
-		middlewareResponse.Run(response, code, body)
+        middlewareResponse.Run(response, code, body)
 
-		// Middleware database dissconnect
+        // Middleware database dissconnect
 
-		middlewareDatabaseDisconnect.Run(database)
-	})
+        middlewareDatabaseDisconnect.Run(database)
+    })
 
-	// Run server
+    // Run server
 
-	http.ListenAndServe(HTTP_HOST+":"+HTTP_PORT, nil)
+    http.ListenAndServe(HTTP_HOST+":"+HTTP_PORT, nil)
 }
