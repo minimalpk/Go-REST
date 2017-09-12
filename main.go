@@ -10,12 +10,12 @@ import (
 // Import middlewares packages
 
 import (
-	middlewareAccess "rest/middlewares/access"
-	middlewareDatabaseConnect "rest/middlewares/database/connect"
+	middlewareDatabaseConnect    "rest/middlewares/database/connect"
 	middlewareDatabaseDisconnect "rest/middlewares/database/disconnect"
-	middlewareRequest "rest/middlewares/request"
-	middlewareResponse "rest/middlewares/response"
-	middlewareRoutes "rest/middlewares/routes"
+	middlewareRequest            "rest/middlewares/request"
+	middlewareResponse           "rest/middlewares/response"
+	middlewareAccess             "rest/middlewares/access"
+	middlewareRoutes             "rest/middlewares/routes"
 )
 
 const (
