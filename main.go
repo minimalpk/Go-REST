@@ -46,22 +46,18 @@ func main() {
             return
         }
 
-        // Middleware database connect
-
-        var database = middlewareDatabaseConnect.Run()
-
         // Middleware request
 
         var parameters, error = middlewareRequest.Run(response, request)
 
         if error != nil {
-            // Middleware database dissconnect
-
-            middlewareDatabaseDisconnect.Run(database)
-
             return
         }
 
+        // Middleware database connect
+
+        var database = middlewareDatabaseConnect.Run()
+        
         // Middleware access
 
         var status = middlewareAccess.Run(response, request, database)
@@ -106,5 +102,5 @@ func main() {
 
     // Run server
 
-    http.ListenAndServe(HTTP_HOST+":"+HTTP_PORT, nil)
+    http.ListenAndServe(HTTP_HOST + ":" + HTTP_PORT, nil)
 }
